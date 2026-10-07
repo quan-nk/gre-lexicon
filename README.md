@@ -6,7 +6,7 @@ A small, self-contained study app I built to prepare for GRE Verbal around a ful
 
 - **Words:** 300 advanced GRE words with US pronunciation, plain-English meanings, example sentences and a mixed recall test.
 - **Essays:** 200 model "Analyze an Issue" essays at the 6 level, each with an analysis of why it earns a 6.
-- **Writing:** in development.
+- **Writing:** grammar drills, a writing toolkit and a progress log. Timed writing and feedback are in development.
 
 It runs entirely in the browser, with no account and no install, and it works on a phone.
 
@@ -54,6 +54,12 @@ Open **Essays** and read one or two model essays a day. Filter them by instructi
 
 Mark essays as read to track your progress.
 
+### Before an essay: Writing
+
+- **Drills.** *Error hunt* gives 15 sentences: tap the word that holds the error, or "No error". It leans toward the error types you miss most. *Article lab* gives 8 sentences: choose a, an, the or no article for each blank.
+- **Toolkit.** The 30-minute plan, the 4-minute proofread (five scans, in order), the six instruction types, common Vietnamese-to-English traps and the 12 error codes.
+- **Progress.** Your drill accuracy by error type, plus your official POWERPREP writing scores if you log them.
+
 ### Handy links
 
 Add these to the address to jump straight to a section:
@@ -63,8 +69,10 @@ Add these to the address to jump straight to a section:
 | `#d05` | Day 5 of the words |
 | `#d05-test` | Day 5's test |
 | `#essays` | The essay bank |
+| `#drills` | Writing drills |
+| `#toolkit` | Writing toolkit |
 
-Your progress (words seen, test results, essays read) is saved in your own browser on that device.
+Your progress (words seen, test results, essays read, drill scores) is saved in your own browser on that device.
 
 ---
 
