@@ -526,7 +526,7 @@ svg text{fill:var(--muted);font:11px var(--mono)}
   <div id="c-out" class="stack"></div>
 </section>
 </section>
-<footer style="max-width:1080px;margin:32px auto 0;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);line-height:1.5">GRE® is a registered trademark of ETS. This site is not affiliated with or endorsed by ETS or GregMat. Essays and explanations were generated with AI and checked by automated review; they may contain errors.</footer>
+<footer style="max-width:1080px;margin:32px auto 0;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);line-height:1.5">Writing feedback and grading are in development.</footer>
 </main>
 <div class="pop" id="pop" hidden role="dialog" aria-label="Word"></div>
 <script>
@@ -2163,7 +2163,7 @@ async function boot() {
   route(location.hash);
 
   const C = window.claude;
-  if (!C || typeof C.use !== "function") { setStatus("Web copy · progress saved in this browser · AI feedback only in the Claude version", false); return; }
+  if (!C || typeof C.use !== "function") { setStatus("Progress saved in this browser", false); return; }
   const [db, user, sample] = await Promise.all(["db", "user", "sample"].map(n => C.use(n).catch(() => null)));
   S.sample = sample || null;
   if (db && user) { try { S.uid = await user.id(); } catch (e) { S.uid = null; } }
