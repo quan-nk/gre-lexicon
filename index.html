@@ -276,7 +276,7 @@ svg text{fill:var(--muted);font:11px var(--mono)}
     <nav class="primary" aria-label="Sections">
       <button data-sec="words" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg>Words</button>
       <button data-sec="essays"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h7a3 3 0 0 1 3 3v14a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v14a2 2 0 0 1 2-2h8z"/></svg>Essays</button>
-      <button data-sec="lab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Writing</button>
+      <button data-sec="lab" disabled aria-disabled="true" tabindex="-1" title="In development" style="opacity:.4;filter:blur(.7px);cursor:not-allowed;pointer-events:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Writing</button>
     </nav>
   </div>
 </header>
@@ -881,7 +881,7 @@ const readingWriter = makeWriter(() => userDoc("reading"), () => S.reading, "gl-
 const SECTIONS = ["words", "essays", "lab"];
 const LAB_TABS = ["write", "drills", "toolkit", "progress", "check"];
 function showSection(name, opts = {}) {
-  if (!SECTIONS.includes(name)) name = "words";
+  if (!SECTIONS.includes(name) || name === "lab") name = "words";
   S.sec = name;
   $$("nav.primary button").forEach(b => { if (b.dataset.sec === name) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
   $$("main > section[data-section]").forEach(s => { s.hidden = s.id !== "sec-" + name; });
@@ -1267,7 +1267,7 @@ const Essays = (() => {
     $("#e-list").innerHTML = order.length ? order.map(e => `<button class="erow${isRead(e.id) ? " read" : ""}" data-id="${e.id}">
         <span class="id">${e.id}</span><span class="tt">${esc(e.title)}</span><span class="st">${isRead(e.id) ? "✓ read" : "Day " + e.day}</span>
         <span class="ex2">${esc(e.prompt.statement.replace(/\n/g, " "))}</span>
-        <span class="ws">${e.lab ? `<span style="background:var(--accent-soft);color:var(--accent)">Writing Lab prompt</span>` : ""}${e.words.filter(w => w.source === "lunch").map(w => `<span>${esc(w.headword)}</span>`).join("")}</span>
+        <span class="ws">${e.words.filter(w => w.source === "lunch").map(w => `<span>${esc(w.headword)}</span>`).join("")}</span>
       </button>`).join("") : `<p class="muted">No essays match.</p>`;
   }
   function labWritten(e) { return e.lab_id && S.essays.some(x => x.promptId === e.lab_id); }
@@ -1283,7 +1283,7 @@ const Essays = (() => {
     setHash("essay-" + id);
     const idx = order.findIndex(x => x.id === id);
     const prev = idx > 0 ? order[idx - 1] : null, next = idx >= 0 && idx < order.length - 1 ? order[idx + 1] : null;
-    const gated = e.lab && !labWritten(e) && !(S.reading.unlocked && S.reading.unlocked[id]);
+    const gated = false;
     const a = e.analysis || {};
     const paras = e.essay.split(/\n\s*\n/).filter(p => p.trim());
     const notes = a.paragraphs || [];
