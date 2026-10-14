@@ -1318,7 +1318,7 @@ const Essays = (() => {
   const essayFor = (pid, side) => D.essays.find(e => e.pid === pid && e.side === side);
   async function load() {
     if (D) return D;
-    if (!loading) loading = fetch("essays.json?v=46d254187a").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    if (!loading) loading = fetch("essays.json?v=cf52c03cdb").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(j => { D = j; return D; }).catch(e => { loading = null; throw e; });
     return loading;
   }
