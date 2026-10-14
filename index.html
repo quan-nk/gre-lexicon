@@ -208,6 +208,35 @@ details.more[open] summary::before{content:"–"}
 .vrow{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:center}
 .vrow .w{font-weight:600}
 .vrow .d{grid-column:2;color:var(--muted);font-size:13.5px}
+/* essays: topic rows, side buttons, sentence roles, template, phrase bank, topic words */
+.trow{cursor:default;grid-template-columns:auto 1fr auto}
+.trow .tt{font-weight:500;font-size:14.5px;line-height:1.45}
+.trow .ws{gap:6px}
+.sidebtn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:13px;font-weight:550;color:var(--ink-2);cursor:pointer}
+.sidebtn b{color:var(--accent);margin-right:2px}
+.sidebtn:hover{border-color:var(--accent-line)}
+.sidebtn.read{color:var(--ok);border-color:var(--ok-soft)}
+.rl{display:none;font:600 10.5px/1.6 var(--sans);letter-spacing:.04em;text-transform:uppercase;border-radius:4px;padding:0 5px;margin-right:5px;vertical-align:2px}
+.struct .rl,.tpl .rl{display:inline-block}
+.rl.r-in{background:var(--blue-soft);color:var(--blue)}
+.rl.r-key{background:var(--accent-soft);color:var(--accent)}
+.rl.r-ex{background:var(--ok-soft);color:var(--ok)}
+.rl.r-dev{background:var(--plum-soft);color:var(--plum)}
+.rl.r-con{background:var(--amber-soft);color:var(--amber)}
+.struct .sent.r-key{text-decoration:underline;text-decoration-color:var(--accent-line);text-underline-offset:4px}
+.tpl{display:grid;gap:16px;max-width:860px}
+.tpl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:12px}
+.tpl-p ol,.tpl-list{margin:6px 0 0;padding-left:1.2em;display:grid;gap:6px;font-size:14.5px}
+.tbl-wrap{overflow-x:auto}
+.tpl-t{border-collapse:collapse;font-size:14px;width:100%}
+.tpl-t th,.tpl-t td{text-align:left;vertical-align:top;padding:7px 8px;border-bottom:1px solid var(--line)}
+.tpl-t th{font-size:12px;color:var(--muted);font-weight:600}
+.bank{padding-left:1.4em;display:grid;gap:8px;font-size:14.5px;max-width:78ch}
+.phr{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:12px}
+.phr ul{margin:4px 0 0;padding-left:1.1em;display:grid;gap:5px;font-size:14px}
+.syn{display:flex;flex-wrap:wrap;gap:6px}
+.syn span{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-size:13.5px}
+.deckw{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
 .gate{display:grid;gap:10px;justify-items:start}
 
 /* ===== Writing Lab (restyled) ===== */
@@ -299,18 +328,27 @@ svg text{fill:var(--muted);font:11px var(--mono)}
 
 <!-- ================= ESSAYS ================= -->
 <section id="sec-essays" data-section hidden>
-  <div id="e-listview">
+  <div class="subnav" role="tablist" aria-label="Essays">
+    <button role="tab" id="et-template" data-etab="template" aria-selected="false">Template</button>
+    <button role="tab" id="et-list" data-etab="list" aria-selected="true">Essays</button>
+    <button role="tab" id="et-phrases" data-etab="phrases" aria-selected="false">Phrases</button>
+    <button role="tab" id="et-words" data-etab="words" aria-selected="false">Topic words</button>
+  </div>
+  <div id="e-template" class="etab" hidden></div>
+  <div id="e-phrases" class="etab" hidden></div>
+  <div id="e-words" class="etab" hidden></div>
+  <div id="e-listview" class="etab">
     <div class="spread" style="margin-bottom:12px">
-      <div class="stack-s"><span class="label">Essay bank</span><h1 style="font-size:20px" id="e-title">Model essays at the 6 level</h1></div>
+      <div class="stack-s"><span class="label">ETS Issue pool</span><h1 style="font-size:20px" id="e-title">Every pool topic, both sides</h1></div>
       <span class="muted num" id="e-progress"></span>
     </div>
-    <p class="muted" style="font-size:13.5px;margin-bottom:12px;max-width:72ch" id="e-about">Original prompts and essays written to ETS's published Issue scoring guide, each scored 6 by a separate rater who did not know it was meant as a model. Highlighted words come from the Lunch Lexicon and an extended GRE word list; tap one for its meaning.</p>
+    <p class="muted" style="font-size:13.5px;margin-bottom:12px;max-width:72ch" id="e-about">All official Issue topics, each with two model essays (side A and side B), about 600 words each, written to one 5-paragraph template. Turn on "Show structure" in an essay to see every sentence's job. Highlighted words come from your vocabulary deck; tap one for its meaning.</p>
     <div class="typechips" id="e-types"></div>
     <div class="toolbar">
-      <input type="search" id="e-search" placeholder="Search prompts, titles or words" aria-label="Search essays">
+      <input type="search" id="e-search" placeholder="Search topics, titles or words" aria-label="Search topics">
       <select id="e-theme" aria-label="Theme"></select>
       <select id="e-sort" aria-label="Order">
-        <option value="day">By lunch day</option>
+        <option value="pool">Pool order</option>
         <option value="type">By type</option>
         <option value="unread">Unread first</option>
       </select>
@@ -898,8 +936,8 @@ function route(hash) {
   let m;
   if ((m = h.match(/^d(\d{1,2})(?:-(\w+))?$/))) { Words.go(+m[1], m[2] || null); showSection("words", { keepHash: true }); return; }
   if (h === "test") { Words.go(null, "test"); showSection("words", { keepHash: true }); return; }
-  if (h === "essays") { showSection("essays", { keepHash: true }); return; }
-  if ((m = h.match(/^essay-([A-F]\d{2})$/))) { showSection("essays", { keepHash: true }); Essays.read(m[1]); return; }
+  if ((m = h.match(/^essays(?:-(template|phrases|words))?$/))) { Essays.tab(m[1] || "list"); showSection("essays", { keepHash: true }); return; }
+  if ((m = h.match(/^essay-(I\d{3}[AB])$/))) { showSection("essays", { keepHash: true }); Essays.read(m[1]); return; }
   if (LAB_TABS.includes(h)) { S.tab = h; showSection("lab", { keepHash: true }); return; }
   showSection("words");
 }
@@ -1192,10 +1230,14 @@ const Words = (() => {
   return { init, go, render, hash, refreshDots: () => renderChips(dayObj(day)), current: () => ({ day, view }) };
 })();
 
-/* ---------- Essay bank ---------- */
-const TYPE_NAME = { A: "When it holds", B: "Recommendation", C: "Challenges", D: "Two views", E: "Claim + reason", F: "Policy" };
-const THEME_NAME = { EDU: "Education", SCI: "Science & technology", GOV: "Government & law", SOC: "Society & ethics", ART: "Arts & culture",
-  ECO: "Work & economy", CITY: "Cities & environment", MEDIA: "Media & knowledge", LEAD: "Leadership", HEALTH: "Health" };
+/* ---------- Essays: the template, the ETS Issue pool (two model essays per topic), phrases, topic words ---------- */
+const KIND_NAME = { statement: "Statement", claim: "Claim", claim_reason: "Claim + reason", recommendation: "Recommendation", two_views: "Two views", policy: "Policy" };
+const THEME_NAME = { EDU: "Education", GOV: "Government & policy", SCI: "Science & technology", ART: "Arts & culture",
+  LEAD: "Leadership & work", SOC: "Society & ethics", THINK: "Knowledge & thinking" };
+const ROLE_NAME = { hook: "Hook", shift: "Shift", thesis: "Thesis", outline: "Outline", topic: "Topic sentence", example: "Example",
+  development: "Development", concession: "Concession", rebuttal: "Rebuttal", restate: "Restate", recap: "Recap", final: "Final thought" };
+const ROLE_CLS = { hook: "r-in", shift: "r-in", thesis: "r-key", outline: "r-in", topic: "r-key", example: "r-ex", development: "r-dev",
+  concession: "r-con", rebuttal: "r-con", restate: "r-key", recap: "r-in", final: "r-in" };
 
 const Pop = (() => {
   let open = null, fromKey = false;
@@ -1219,115 +1261,167 @@ const Pop = (() => {
   return { show, hide };
 })();
 
+const TEMPLATE_HTML = `
+<div class="tpl">
+  <div class="stack-s"><span class="label">The Issue essay template</span><h1 style="font-size:22px">5 paragraphs · about 600 words · 30 minutes</h1>
+  <p class="muted" style="max-width:72ch">Every essay in this bank follows this exact shape, so reading them trains the template. Learn the slots, then vary the wording with the Phrases tab.</p></div>
+  <div class="tpl-grid">
+    <section class="card tpl-p"><span class="label">¶1 Introduction · 4 sentences · ~80 words</span><ol>
+      <li><b class="rl r-in">Hook</b> one general sentence: a broad truth, a quick image or a question.</li>
+      <li><b class="rl r-in">Shift</b> turn from the hook to the prompt's issue: "This raises the question of whether …"</li>
+      <li><b class="rl r-key">Thesis</b> a clear but <i>qualified</i> position in the prompt's own key words: "I largely agree that …, provided that …"</li>
+      <li><b class="rl r-in">Outline</b> name your three points in order: "This is true because …, because …, even though …"</li></ol></section>
+    <section class="card tpl-p"><span class="label">¶2 and ¶3 Body · ~140 words each</span><ol>
+      <li><b class="rl r-key">Topic sentence</b> transition + your position restated + the reason, in <i>one</i> sentence: "First, … because …"</li>
+      <li><b class="rl r-ex">Example 1</b> 2–3 sentences, specific: who, what, what happened.</li>
+      <li><b class="rl r-ex">Example 2</b> 1–2 sentences, shorter: "Similarly, …" (a hypothetical is fine).</li>
+      <li><b class="rl r-dev">Development</b> 1–2 sentences: "This shows that …", tied back to the thesis in the prompt's words.</li></ol></section>
+    <section class="card tpl-p"><span class="label">¶4 Concession · ~140 words</span><ol>
+      <li><b class="rl r-con">Concession</b> grant the other side's strongest point: "Admittedly, …"</li>
+      <li><b class="rl r-ex">Example</b> 1–2 sentences that support that point honestly.</li>
+      <li><b class="rl r-con">Rebuttal</b> "Nevertheless, …": the limit of that point.</li>
+      <li><b class="rl r-dev">Development</b> why the concession qualifies, but does not overturn, your thesis.</li></ol></section>
+    <section class="card tpl-p"><span class="label">¶5 Conclusion · 3 sentences · ~60 words</span><ol>
+      <li><b class="rl r-key">Restate</b> "In conclusion, …" with the qualified thesis in fresh words.</li>
+      <li><b class="rl r-in">Recap</b> one sentence that refers back to the three points.</li>
+      <li><b class="rl r-in">Final thought</b> the condition, implication or takeaway.</li></ol></section>
+  </div>
+  <section class="card stack"><span class="label">Seven changes to the basic template, and why</span><ol class="tpl-list">
+    <li><b>One topic sentence, not three.</b> Fold the transition, the restated thesis and the reason into one sentence. That saves about 20 words per paragraph and stops the body from sounding repetitive.</li>
+    <li><b>One deep example beats two thin ones.</b> Give example 1 two or three sentences (who, what, result) and example 2 a single "Similarly, …" sentence. Raters reward development, not a count of examples.</li>
+    <li><b>Qualify the thesis.</b> "I largely agree, provided that …" reads as insight rather than fence-sitting, and it sets up the concession paragraph.</li>
+    <li><b>Reuse the prompt's key words in every development sentence.</b> This one habit keeps you visibly on task and gives you cohesion for free.</li>
+    <li><b>Let the instruction decide ¶4.</b> The instruction's second sentence is graded. Use the table below; ignoring it is the most common way a 5-level essay misses a 6.</li>
+    <li><b>Bring your examples with you.</b> Master 8–10 of the go-to examples below; together they can argue almost any topic. Never invent statistics.</li>
+    <li><b>Keep the last 3 minutes for proofreading your own error types:</b> articles, plurals, subject–verb agreement and missing words. Mechanics, not ideas, are where your score leaks.</li></ol></section>
+  <section class="card stack"><span class="label">How the template adapts to each instruction</span><div class="tbl-wrap"><table class="tpl-t"><thead><tr><th>Type</th><th>What the instruction asks</th><th>What changes</th></tr></thead><tbody>
+    <tr><td>Statement</td><td>Consider when the statement might or might not hold true</td><td>¶2–3 show where your view holds; ¶4 names a case where it does not, and says how that shapes your position.</td></tr>
+    <tr><td>Recommendation</td><td>Describe circumstances in which adopting it would or would not be advantageous</td><td>Frame each example as a circumstance: "Where …, adopting it would be advantageous because …". ¶4 = a circumstance where it would not be.</td></tr>
+    <tr><td>Claim</td><td>Address the most compelling challenges to your position</td><td>¶4 must be the <i>strongest</i> objection, stated fairly, then answered.</td></tr>
+    <tr><td>Claim + reason</td><td>Agree or disagree with the claim <i>and</i> the reason</td><td>¶2 judges the claim, ¶3 judges the reason (is it true? does it support the claim?), ¶4 concedes. Write "the claim" and "the reason" explicitly.</td></tr>
+    <tr><td>Two views</td><td>Say which view is closer to yours and address both</td><td>Name your view in the thesis; ¶4 gives the other view its due before explaining why yours is closer.</td></tr>
+    <tr><td>Policy</td><td>Consider the consequences of implementing the policy</td><td>¶2–3 are consequences of implementing it; ¶4 is a consequence on the other side; say how the consequences shape your position.</td></tr>
+  </tbody></table></div></section>
+  <section class="card stack"><span class="label">The 30 minutes</span><div class="tbl-wrap"><table class="tpl-t"><tbody>
+    <tr><td class="num">0–3</td><td>Read the instruction twice. Pick a side, the three points and an example for each. Write the thesis.</td></tr>
+    <tr><td class="num">3–6</td><td>Introduction</td></tr><tr><td class="num">6–13</td><td>Body 1</td></tr><tr><td class="num">13–20</td><td>Body 2</td></tr>
+    <tr><td class="num">20–25</td><td>Concession</td></tr><tr><td class="num">25–27</td><td>Conclusion</td></tr>
+    <tr><td class="num">27–30</td><td>Proofread: articles, plurals, agreement, missing words.</td></tr></tbody></table></div></section>
+  <section class="stack"><span class="label">Your go-to examples (facts checked; use them as stated)</span><ol class="bank" id="e-bank"></ol></section>
+</div>`;
+
 const Essays = (() => {
-  let listY = 0, lastRead = null;
-  let data = null, meta = {}, loading = null, filt = { type: "all", theme: "all", q: "", sort: "day" }, order = [], curId = null;
-  const byId = id => data && data.find(e => e.id === id);
+  let listY = 0, lastRead = null, etab = "list";
+  let D = null, loading = null, filt = { kind: "all", theme: "all", q: "", sort: "pool" }, order = [], curId = null;
+  const byId = id => D && D.essays.find(e => e.id === id);
+  const topicOf = pid => D.topics.find(t => t.pid === pid);
+  const essayFor = (pid, side) => D.essays.find(e => e.pid === pid && e.side === side);
   async function load() {
-    if (data) return data;
+    if (D) return D;
     if (!loading) loading = fetch("essays.json").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(j => { data = j.essays || j; meta = j.meta || {}; return data; })
-      .catch(e => { loading = null; throw e; });
+      .then(j => { D = j; return D; }).catch(e => { loading = null; throw e; });
     return loading;
+  }
+  function tab(name) { if (["list", "template", "phrases", "words"].includes(name)) etab = name; if (curId && name !== "read") closeReader(); }
+  function showTab() {
+    $$("#sec-essays .subnav button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.etab === etab)));
+    $("#e-listview").hidden = etab !== "list"; $("#e-template").hidden = etab !== "template";
+    $("#e-phrases").hidden = etab !== "phrases"; $("#e-words").hidden = etab !== "words";
+    if (etab === "template" && !$("#e-template").childElementCount) renderTemplate();
+    if (etab === "phrases" && !$("#e-phrases").childElementCount) renderPhrases();
+    if (etab === "words" && !$("#e-words").childElementCount) renderWords();
+    if (etab === "list") renderList();
   }
   async function open() {
     if (curId && !$("#e-reader").hidden) return;
-    try { await load(); } catch (e) { $("#e-list").innerHTML = `<div class="banner warn">The essay bank didn't load (${esc(String(e.message || e))}). Check your connection and reopen this tab.</div>`; return; }
+    try { await load(); } catch (e) { $("#e-list").innerHTML = `<div class="banner warn">The essays didn't load (${esc(String(e.message || e))}). Check your connection and reopen this tab.</div>`; return; }
     if (!$("#e-types").childElementCount) initControls();
-    renderList();
+    showTab();
   }
   function initControls() {
-    $("#e-types").innerHTML = `<button class="tchip" data-t="all" aria-pressed="true">All ${data.length}</button>` +
-      Object.keys(TYPE_NAME).map(t => `<button class="tchip" data-t="${t}" aria-pressed="false">${t} · ${TYPE_NAME[t]}</button>`).join("");
-    $("#e-types").onclick = ev => { const b = ev.target.closest(".tchip"); if (!b) return; filt.type = b.dataset.t; $$("#e-types .tchip").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderList(); };
-    const themes = [...new Set(data.map(e => e.theme))].sort((a, b) => (THEME_NAME[a] || a).localeCompare(THEME_NAME[b] || b));
+    $$("#sec-essays .subnav button").forEach(b => { b.onclick = () => { etab = b.dataset.etab; closeReader(); showTab(); setHash(hash()); window.scrollTo(0, 0); }; });
+    const kinds = Object.keys(KIND_NAME).filter(k => D.topics.some(t => t.kind === k));
+    $("#e-types").innerHTML = `<button class="tchip" data-t="all" aria-pressed="true">All ${D.topics.length}</button>` +
+      kinds.map(k => `<button class="tchip" data-t="${k}" aria-pressed="false">${KIND_NAME[k]} · ${D.topics.filter(t => t.kind === k).length}</button>`).join("");
+    $("#e-types").onclick = ev => { const b = ev.target.closest(".tchip"); if (!b) return; filt.kind = b.dataset.t; $$("#e-types .tchip").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderList(); };
+    const themes = [...new Set(D.topics.map(t => t.theme))].sort((a, b) => (THEME_NAME[a] || a).localeCompare(THEME_NAME[b] || b));
     $("#e-theme").innerHTML = `<option value="all">All themes</option>` + themes.map(t => `<option value="${t}">${esc(THEME_NAME[t] || t)}</option>`).join("");
     $("#e-theme").onchange = () => { filt.theme = $("#e-theme").value; renderList(); };
     $("#e-sort").onchange = () => { filt.sort = $("#e-sort").value; renderList(); };
     let t = null; $("#e-search").oninput = () => { clearTimeout(t); t = setTimeout(() => { filt.q = $("#e-search").value.trim().toLowerCase(); renderList(); }, 150); };
-    $("#e-list").onclick = ev => { const r = ev.target.closest(".erow"); if (r) { listY = window.scrollY; read(r.dataset.id).then(() => { window.scrollTo(0, 0); const h = $("#er-title"); if (h) h.focus({ preventScroll: true }); }); } };
+    $("#e-list").onclick = ev => { const b = ev.target.closest("[data-id]"); if (b) { listY = window.scrollY; read(b.dataset.id).then(() => { window.scrollTo(0, 0); const h = $("#er-title"); if (h) h.focus({ preventScroll: true }); }); } };
   }
   const isRead = id => !!(S.reading.read && S.reading.read[id] > 0);   // negative = un-marked (tombstone)
+  const topicRead = t => ["A", "B"].filter(s => isRead(`I${String(t.pid).padStart(3, "0")}${s}`)).length;
   function visible() {
-    let list = data.filter(e => (filt.type === "all" || e.type === filt.type) && (filt.theme === "all" || e.theme === filt.theme));
-    if (filt.q) list = list.filter(e => (e.title + " " + e.prompt.statement + " " + e.words.map(w => w.headword).join(" ") + " " + e.id).toLowerCase().includes(filt.q));
-    const typeIdx = e => "ABCDEF".indexOf(e.type) * 100 + parseInt(e.id.slice(1), 10);
-    if (filt.sort === "day") list.sort((a, b) => a.day - b.day || typeIdx(a) - typeIdx(b));
-    if (filt.sort === "type") list.sort((a, b) => typeIdx(a) - typeIdx(b));
-    if (filt.sort === "unread") list.sort((a, b) => isRead(a.id) - isRead(b.id) || a.day - b.day || typeIdx(a) - typeIdx(b));
+    let list = D.topics.filter(t => (filt.kind === "all" || t.kind === filt.kind) && (filt.theme === "all" || t.theme === filt.theme));
+    if (filt.q) list = list.filter(t => {
+      const es = D.essays.filter(e => e.pid === t.pid);
+      return (t.statement + " " + es.map(e => e.title + " " + e.words.map(w => w.headword).join(" ")).join(" ") + " " + t.pid).toLowerCase().includes(filt.q);
+    });
+    const kIdx = t => Object.keys(KIND_NAME).indexOf(t.kind) * 1000 + t.pid;
+    if (filt.sort === "pool") list.sort((a, b) => a.pid - b.pid);
+    if (filt.sort === "type") list.sort((a, b) => kIdx(a) - kIdx(b));
+    if (filt.sort === "unread") list.sort((a, b) => topicRead(a) - topicRead(b) || a.pid - b.pid);
     return list;
   }
   function renderList() {
-    if (!data) return;
+    if (!D) return;
     order = visible();
-    const nRead = data.filter(e => isRead(e.id)).length;
-    $("#e-progress").textContent = `${nRead} of ${data.length} read`;
-    $("#e-title").textContent = `${data.length} model essays at the 6 level`;
-    if (meta.planned && data.length < meta.planned) $("#e-progress").textContent += ` · ${data.length} of ${meta.planned} written so far`;
-    if (!data.length) { $("#e-list").innerHTML = `<div class="banner">The essays are still being written and checked. They will appear here as each batch passes review.</div>`; return; }
-    $("#e-list").innerHTML = order.length ? order.map(e => `<button class="erow${isRead(e.id) ? " read" : ""}" data-id="${e.id}">
-        <span class="id">${e.id}</span><span class="tt">${esc(e.title)}</span><span class="st">${isRead(e.id) ? "✓ read" : "Day " + e.day}</span>
-        <span class="ex2">${esc(e.prompt.statement.replace(/\n/g, " "))}</span>
-        <span class="ws">${e.words.filter(w => w.source === "lunch").map(w => `<span>${esc(w.headword)}</span>`).join("")}</span>
-      </button>`).join("") : `<p class="muted">No essays match.</p>`;
+    const nRead = D.essays.filter(e => isRead(e.id)).length;
+    $("#e-progress").textContent = `${nRead} of ${D.essays.length} read`;
+    $("#e-title").textContent = `${D.topics.length} pool topics · ${D.essays.length} essays`;
+    $("#e-list").innerHTML = order.length ? order.map(t => {
+      const a = essayFor(t.pid, "A"), b = essayFor(t.pid, "B");
+      const btn = e => e ? `<button class="sidebtn${isRead(e.id) ? " read" : ""}" data-id="${e.id}"><b>${e.side}</b> ${esc(e.stance)}${isRead(e.id) ? " ✓" : ""}</button>` : "";
+      return `<div class="erow trow"><span class="id">#${String(t.pid).padStart(3, "0")}</span>
+        <span class="tt">${esc(t.statement)}</span><span class="st">${esc(KIND_NAME[t.kind] || t.kind)}</span>
+        <span class="ws">${a || b ? btn(a) + btn(b) : `<span class="faint" style="font-size:12.5px">Essays being written</span>`}</span></div>`;
+    }).join("") : `<p class="muted">No topics match.</p>`;
   }
-  function labWritten(e) { return e.lab_id && S.essays.some(x => x.promptId === e.lab_id); }
-  function para(text) {
-    return esc(text).replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, (m, form, head) => `<mark class="t" data-w="${head}" tabindex="0" role="button" aria-haspopup="dialog">${form}</mark>`);
+  function sent(s) {
+    const txt = esc(s.text).replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, (m, form, head) => `<mark class="t" data-w="${head}" tabindex="0" role="button" aria-haspopup="dialog">${form}</mark>`);
+    return `<span class="sent ${ROLE_CLS[s.role] || ""}"><b class="rl ${ROLE_CLS[s.role] || ""}">${esc(ROLE_NAME[s.role] || s.role)}</b>${txt}</span>`;
   }
+  const words = e => e.paragraphs.flat().map(s => s.text.replace(/\[\[([^\]|]+)\|[^\]]+\]\]/g, "$1")).join(" ").split(/\s+/).filter(Boolean).length;
   async function read(id) {
     try { await load(); } catch (e) { return; }
     const e = byId(id); if (!e) return;
     if (!order.length) order = visible();
-    curId = id;
-    $("#e-listview").hidden = true; const R = $("#e-reader"); R.hidden = false;
+    curId = id; const t = topicOf(e.pid);
+    $$("#sec-essays .etab").forEach(x => { x.hidden = true; });
+    const R = $("#e-reader"); R.hidden = false;
     setHash("essay-" + id);
-    const idx = order.findIndex(x => x.id === id);
-    const prev = idx > 0 ? order[idx - 1] : null, next = idx >= 0 && idx < order.length - 1 ? order[idx + 1] : null;
-    const gated = false;
-    const a = e.analysis || {};
-    const paras = e.essay.split(/\n\s*\n/).filter(p => p.trim());
-    const notes = a.paragraphs || [];
+    const idx = order.findIndex(x => x.pid === e.pid);
+    const prev = idx > 0 ? essayFor(order[idx - 1].pid, e.side) : null, next = idx >= 0 && idx < order.length - 1 ? essayFor(order[idx + 1].pid, e.side) : null;
+    const other = essayFor(e.pid, e.side === "A" ? "B" : "A");
+    const struct = store.get("gl-struct", true);
     R.innerHTML = `<div class="reader">
-      <div class="spread"><button class="btn ghost small" id="er-back">${ICON.back} Essays</button>
-        <div class="row"><span class="tbadge">${e.id} · ${esc(TYPE_NAME[e.type])}</span><span class="tbadge">${esc(THEME_NAME[e.theme] || e.theme)}</span></div></div>
+      <div class="spread"><button class="btn ghost small" id="er-back">${ICON.back} Topics</button>
+        <div class="row"><span class="tbadge">#${String(e.pid).padStart(3, "0")} · ${esc(KIND_NAME[t.kind] || t.kind)}</span><span class="tbadge">${esc(THEME_NAME[t.theme] || t.theme)}</span></div></div>
+      <div class="prompt-box"><span class="label">Topic</span><p class="st">${esc(t.statement)}</p><p class="in">${esc(t.instruction)}</p></div>
+      <div class="spread"><div class="seg" role="group" aria-label="Side">${["A", "B"].map(s => { const x = s === e.side ? e : other; return x ? `<button data-side="${x.id}" aria-pressed="${s === e.side}">${s} · ${esc(x.stance)}</button>` : ""; }).join("")}</div>
+        <label class="row muted" style="font-size:13px;gap:6px"><input type="checkbox" id="er-struct"${struct ? " checked" : ""}> Show structure</label></div>
       <h2 id="er-title" tabindex="-1" style="font-size:24px;font-family:var(--serif);outline:none">${esc(e.title)}</h2>
-      <div class="prompt-box"><span class="label">Prompt</span><p class="st">${esc(e.prompt.statement)}</p><p class="in">${esc(e.prompt.instruction)}</p></div>
-      ${gated ? `<div class="card gate"><b>This is one of your Writing Lab practice prompts.</b><p class="muted">Write your own response first, then compare it with this model. Reading it first spoils the practice.</p>
-          <div class="row"><button class="btn" id="er-write">Write it now</button><button class="btn ghost" id="er-unlock">Read anyway</button></div></div>` : `
-      <div class="spread"><span class="label">The essay · ${wordCount(e.essay.replace(/\[\[([^\]|]+)\|[^\]]+\]\]/g, "$1"))} words</span>
-        <label class="row muted" style="font-size:13px;gap:6px"><input type="checkbox" id="er-notes"> Show paragraph notes</label></div>
-      <div class="essay-body" id="er-body">${paras.map((p, i) => `<p>${para(p)}${notes[i] ? `<span class="pnote" hidden><b>¶${i + 1} · ${esc(notes[i].role)}.</b> ${esc(notes[i].note)}</span>` : ""}</p>`).join("")}</div>
-      <section class="card analysis">
-        <span class="label">Why it scores a 6</span>
-        <p class="serif" style="font-size:17px">${esc(a.verdict || "")}</p>
-        <div>${[["Position", a.position], ["Development", a.development], ["Organization", a.organization], ["Language", a.language], ["The specific task", a.task]].filter(x => x[1]).map(([k, v]) => `<div class="dim"><b>${k}</b><p>${esc(v)}</p></div>`).join("")}</div>
-      </section>
-      ${(a.moves || []).length ? `<section class="stack"><span class="label">Moves to borrow</span><div class="moves">${a.moves.map(m => `<div class="move"><span class="f">${esc(m.frame)}</span><span class="e">“${esc(m.example)}”</span><span class="muted" style="font-size:13.5px">${esc(m.use)}</span></div>`).join("")}</div></section>` : ""}
-      ${a.contrast ? `<section class="card flat stack"><span class="label">What a 4 or 5 would do instead</span><p>${esc(a.contrast)}</p></section>` : ""}
-      <section class="stack"><span class="label">Vocabulary in this essay</span><div class="vocab-list">${e.words.map(w => `<div class="vrow">${w.source === "lunch" ? speakBtn(w.headword, true) : `<span></span>`}<span class="w">${esc(w.headword)} <span class="faint" style="font-weight:400;font-size:12.5px">${w.source === "lunch" ? "Lunch Day " + (WORD_INDEX[w.headword] ? WORD_INDEX[w.headword].day : "") : "Extra word"}</span></span><span class="d">${esc(w.meaning_here)}</span></div>`).join("")}</div></section>`}
+      <span class="label">${words(e)} words</span>
+      <div class="essay-body${struct ? " struct" : ""}" id="er-body">${e.paragraphs.map(p => `<p>${p.map(sent).join(" ")}</p>`).join("")}</div>
+      <section class="card flat stack"><span class="label">How it follows this topic's instruction</span><p>${esc(e.task_note)}</p></section>
+      <section class="stack"><span class="label">Vocabulary in this essay</span><div class="vocab-list">${e.words.map(w => `<div class="vrow">${WORD_INDEX[w.headword] ? speakBtn(w.headword, true) : `<span></span>`}<span class="w">${esc(w.headword)} <span class="faint" style="font-weight:400;font-size:12.5px">${WORD_INDEX[w.headword] ? "Lunch Day " + WORD_INDEX[w.headword].day : "Manhattan list"}</span></span><span class="d">${esc(w.meaning_here)}</span></div>`).join("")}</div></section>
       <div class="wordnav">
-        <button class="btn ghost small" id="er-prev"${prev ? "" : " disabled"}>${ICON.back} ${prev ? prev.id : ""}</button>
-        ${gated ? "" : `<button class="btn${isRead(id) ? " ghost" : ""} small" id="er-read">${isRead(id) ? "✓ Read" : "Mark as read"}</button>`}
-        <button class="btn ghost small" id="er-next"${next ? "" : " disabled"}>${next ? next.id + " ›" : ""}</button>
+        <button class="btn ghost small" id="er-prev"${prev ? "" : " disabled"}>${ICON.back} ${prev ? "#" + String(prev.pid).padStart(3, "0") : ""}</button>
+        <button class="btn${isRead(id) ? " ghost" : ""} small" id="er-read">${isRead(id) ? "✓ Read" : "Mark as read"}</button>
+        <button class="btn ghost small" id="er-next"${next ? "" : " disabled"}>${next ? "#" + String(next.pid).padStart(3, "0") + " ›" : ""}</button>
       </div></div>`;
     $("#er-back").onclick = back;
+    $$("#e-reader [data-side]").forEach(b => { b.onclick = () => { if (b.dataset.side !== id) read(b.dataset.side); }; });
     if (prev) $("#er-prev").onclick = () => { read(prev.id); window.scrollTo(0, 0); };
     if (next) $("#er-next").onclick = () => { read(next.id); window.scrollTo(0, 0); };
-    if (gated) {
-      $("#er-write").onclick = () => { S.tab = "write"; showSection("lab"); Lab.choosePrompt(e.lab_id); };
-      $("#er-unlock").onclick = () => { S.reading.unlocked = S.reading.unlocked || {}; S.reading.unlocked[id] = Date.now(); readingWriter.soon(); read(id); };
-      return;
-    }
     $("#er-read").onclick = () => {
       S.reading.read = S.reading.read || {};
       S.reading.read[id] = isRead(id) ? -Date.now() : Date.now();
       readingWriter.soon(); read(id);
     };
-    $("#er-notes").checked = !!store.get("gl-pnotes", false);
-    const showNotes = on => $$("#er-body .pnote").forEach(n => { n.hidden = !on; });
-    showNotes($("#er-notes").checked);
-    $("#er-notes").onchange = () => { store.set("gl-pnotes", $("#er-notes").checked); showNotes($("#er-notes").checked); };
+    $("#er-struct").onchange = () => { store.set("gl-struct", $("#er-struct").checked); $("#er-body").classList.toggle("struct", $("#er-struct").checked); };
     $("#er-body").onclick = ev => { const m = ev.target.closest("mark.t[data-w]"); if (m) wordPop(m, e); };
     $("#er-body").onkeydown = ev => { if (ev.key === "Enter" || ev.key === " ") { const m = ev.target.closest("mark.t[data-w]"); if (m) { ev.preventDefault(); wordPop(m, e, true); } } };
   }
@@ -1336,17 +1430,33 @@ const Essays = (() => {
     Pop.show(m, `<div class="row" style="justify-content:space-between"><span class="hw2">${esc(head)}</span>${L ? speakBtn(head, true) : ""}</div>
       ${p ? `<span class="ipa">/${esc(p.ipa)}/ <span class="respell">${esc(p.respell)}</span></span>` : ""}
       <span><b>Here:</b> ${esc(w.meaning_here || "")}</span>
-      <span class="muted">${esc(L ? L.w.gist : (w.def || ""))}</span>
-      ${L ? `<button class="btn quiet small" style="justify-self:start;padding-left:0" data-open="${esc(head)}">Open in Lexicon · Day ${L.day}</button>` : `<span class="faint" style="font-size:12px">Extra word</span>`}`, viaKey);
+      ${L ? `<span class="muted">${esc(L.w.gist)}</span><button class="btn quiet small" style="justify-self:start;padding-left:0" data-open="${esc(head)}">Open in Lexicon · Day ${L.day}</button>` : `<span class="faint" style="font-size:12px">Manhattan list word (in your Anki deck)</span>`}`, viaKey);
   }
+  function renderTemplate() {
+    $("#e-template").innerHTML = TEMPLATE_HTML;
+    $("#e-bank").innerHTML = (D.bank || []).map(b => `<li>${esc(b)}</li>`).join("");
+  }
+  function renderPhrases() {
+    $("#e-phrases").innerHTML = `<div class="stack-s" style="margin-bottom:12px"><span class="label">Phrase bank</span><h1 style="font-size:20px">Variants for every slot of the template</h1>
+      <p class="muted" style="max-width:72ch">Rotate these so no two essays sound alike. [X] and [Y] are blanks.</p></div>
+      <div class="phr">${(D.transitions || []).map(s => `<section class="card stack-s"><span class="label">${esc(s.label)}</span><p class="muted" style="font-size:13.5px">${esc(s.tip)}</p>
+      <ul>${s.variants.map(v => `<li>${esc(v)}</li>`).join("")}</ul></section>`).join("")}</div>`;
+  }
+  function renderWords() {
+    $("#e-words").innerHTML = `<div class="stack-s" style="margin-bottom:12px"><span class="label">Topic words</span><h1 style="font-size:20px">Synonyms for the ideas the pool keeps returning to</h1>
+      <p class="muted" style="max-width:72ch">Grouped by theme, plain to advanced. <span class="deckw">Underlined</span> words are in your vocabulary deck.</p></div>
+      ${(D.themes || []).map(th => `<section class="stack" style="margin-bottom:18px"><h2 style="font-size:17px">${esc(th.name)}</h2><div class="phr">${th.concepts.map(c => `<div class="card stack-s">
+        <b>${esc(c.concept)}</b><div class="syn">${c.synonyms.map(s => `<span class="${s.deck ? "deckw" : ""}" title="${esc(s.note || "")}">${esc(s.word)}</span>`).join("")}</div>
+        <span class="muted" style="font-size:13px">${c.collocations.map(esc).join(" · ")}</span><p style="font-size:14.5px">${esc(c.sentence)}</p></div>`).join("")}</div></section>`).join("")}`;
+  }
+  function closeReader() { Pop.hide(); curId = null; $("#e-reader").hidden = true; }
   function back() {
-    lastRead = curId; Pop.hide(); curId = null; $("#e-reader").hidden = true; $("#e-listview").hidden = false; setHash("essays"); renderList();
+    lastRead = curId; closeReader(); etab = "list"; showTab(); setHash("essays");
     window.scrollTo(0, listY);
-    const row = lastRead && $(`.erow[data-id="${lastRead}"]`); if (row) row.focus({ preventScroll: true });
+    const b = lastRead && $(`#e-list [data-id="${lastRead}"]`); if (b) b.focus({ preventScroll: true });
   }
-  function hash() { return curId ? "essay-" + curId : "essays"; }
-  function forLab(labId) { return data ? data.find(e => e.lab_id === labId) : null; }
-  return { open, read, back, hash, load, forLab, refresh: () => { if (data && !$("#e-listview").hidden) renderList(); } };
+  function hash() { return curId ? "essay-" + curId : etab === "list" ? "essays" : "essays-" + etab; }
+  return { open, read, back, hash, load, tab, forLab: () => null, refresh: () => { if (D && etab === "list" && !curId) renderList(); } };
 })();
 
 /* ---------- Writing Lab ---------- */
