@@ -5,7 +5,7 @@
 A small, self-contained study app I built to prepare for GRE Verbal around a full-time job. It has three parts:
 
 - **Words:** 300 advanced GRE words with US pronunciation, plain-English meanings, example sentences and a mixed recall test.
-- **Essays:** 200 model "Analyze an Issue" essays at the 6 level, each with an analysis of why it earns a 6.
+- **Essays:** every topic in the official ETS "Analyze an Issue" pool (158), each with two model essays (one per side) written to a single 5-paragraph template, plus the template itself, a phrase bank and topic synonyms.
 - **Writing:** grammar drills, a writing toolkit and a progress log. Timed writing and feedback are in development.
 
 It runs entirely in the browser, with no account and no install, and it works on a phone.
@@ -43,16 +43,15 @@ Twenty words with their examples take about 40 minutes. The test takes about 15.
 
 ### In spare minutes: Essays
 
-Open **Essays** and read one or two model essays a day. Filter them by instruction type or theme, or search for a word. Each essay shows:
+Start with **Template**: the 5-paragraph structure (intro, two body paragraphs, a concession, a conclusion), how it adapts to each of the six instruction types, a 30-minute plan and a bank of go-to examples.
 
-- the prompt and its specific instruction;
-- the essay, with the target words highlighted (tap one for its meaning and pronunciation);
-- **Why it scores a 6**, covering position, development, organization, language and the specific task;
-- paragraph-by-paragraph notes (toggle **Show paragraph notes**);
-- **Moves to borrow**, three reusable sentence patterns taken from the essay;
-- **What a 4 or 5 would do instead.**
+Then read one or two topics a day under **Essays**. Every topic in the official pool has two essays of about 600 words, one for each side, so you see how the same template argues either way. In each essay:
 
-Mark essays as read to track your progress.
+- **Show structure** labels every sentence with its job (hook, thesis, topic sentence, example, development, concession, rebuttal…);
+- vocabulary words are highlighted (tap one for its meaning and pronunciation);
+- a note explains how the essay follows that topic's specific instruction.
+
+**Phrases** gives 8–12 variants for every slot of the template, and **Topic words** gives synonyms for the ideas the pool keeps returning to. Mark essays as read to track your progress.
 
 ### Before an essay: Writing
 
@@ -68,7 +67,8 @@ Add these to the address to jump straight to a section:
 |---|---|
 | `#d05` | Day 5 of the words |
 | `#d05-test` | Day 5's test |
-| `#essays` | The essay bank |
+| `#essays` | The pool topics and essays |
+| `#essays-template` | The essay template |
 | `#drills` | Writing drills |
 | `#toolkit` | Writing toolkit |
 
@@ -80,10 +80,10 @@ Your progress (words seen, test results, essays read, drill scores) is saved in 
 
 - **Words:** chosen as the rarest words on a standard advanced GRE list. Definitions and examples were written in plain English and checked against major learner's dictionaries.
 - **Pronunciation:** each word's US pronunciation was transcribed twice independently, and every disagreement was settled against dictionaries. The audio was generated from those transcriptions with an open-source voice model (Kokoro).
-- **Essays:** 200 original prompts, spread across the six Issue instruction types.
-  - Each essay was scored blind against the published Issue scoring guide.
-  - Each was checked for factual accuracy, correct word use and accurate analysis, then fixed.
-  - A final, stricter audit re-checked every essay.
+- **Essays:** all 158 topics in ETS's published Issue pool, two essays each.
+  - Each essay was checked by a separate reviewer for following the topic's instruction, length, organization, cohesion and language, and fixed where needed.
+  - A script also checks every essay's length, paragraph structure and vocabulary markup.
+  - Examples come from a short bank of fact-checked cases, so the facts stay right and the examples are reusable on test day.
 
 If you spot a mistake, please open an issue.
 
