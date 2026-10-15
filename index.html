@@ -946,12 +946,14 @@ function route(hash) {
 const Audio_ = (() => {
   const cache = {}, loading = {};
   let cur = null, curBtn = null, seq = 0;
-  function dayOfWord(w) { const e = WORD_INDEX[w]; return e ? e.day : null; }
-  async function load(day) {
-    if (cache[day]) return cache[day];
-    if (!loading[day]) loading[day] = fetch("audio/d" + pad(day) + ".json").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(j => (cache[day] = j)).catch(() => { delete loading[day]; return null; });
-    return loading[day];
+  /* lunch words live in day packs (d05.json); Manhattan-list words in letter packs (m_c.json) */
+  function packOf(w) { const e = WORD_INDEX[w]; if (e) return e.day; const c = String(w || "").charAt(0).toLowerCase(); return /[a-z]/.test(c) ? "m_" + c : null; }
+  async function load(key) {
+    const k = typeof key === "number" ? "d" + pad(key) : key;
+    if (cache[k]) return cache[k];
+    if (!loading[k]) loading[k] = fetch("audio/" + k + ".json").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(j => (cache[k] = j)).catch(() => { delete loading[k]; return null; });
+    return loading[k];
   }
   function stop() { try { if (cur) { cur.pause(); } } catch (e) {} if (curBtn) curBtn.classList.remove("playing"); cur = null; curBtn = null; try { speechSynthesis.cancel(); } catch (e) {} }
   function synth(word, btn) {
@@ -967,8 +969,8 @@ const Audio_ = (() => {
     stop();
     const my = ++seq;                       // a slower pack load must not play over a newer click
     if (btn) { btn.classList.add("playing"); curBtn = btn; }
-    const day = dayOfWord(word);
-    const pack = day ? await load(day) : null;
+    const key = packOf(word);
+    const pack = key ? await load(key) : null;
     if (my !== seq) return;
     const b64 = pack && pack[word];
     const done = () => { if (btn) btn.classList.remove("playing"); };
@@ -1318,7 +1320,7 @@ const Essays = (() => {
   const essayFor = (pid, side) => D.essays.find(e => e.pid === pid && e.side === side);
   async function load() {
     if (D) return D;
-    if (!loading) loading = fetch("essays.json?v=d606edb5a6").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    if (!loading) loading = fetch("essays.json?v=271fdec137").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(j => { D = j; return D; }).catch(e => { loading = null; throw e; });
     return loading;
   }
@@ -1406,7 +1408,7 @@ const Essays = (() => {
       <span class="label">${words(e)} words</span>
       <div class="essay-body${struct ? " struct" : ""}" id="er-body">${e.paragraphs.map(p => `<p>${p.map(sent).join(" ")}</p>`).join("")}</div>
       <section class="card flat stack"><span class="label">How it follows this topic's instruction</span><p>${esc(e.task_note)}</p></section>
-      <section class="stack"><span class="label">Vocabulary in this essay</span><div class="vocab-list">${e.words.map(w => `<div class="vrow">${WORD_INDEX[w.headword] ? speakBtn(w.headword, true) : `<span></span>`}<span class="w">${esc(w.headword)} <span class="faint" style="font-weight:400;font-size:12.5px">${WORD_INDEX[w.headword] ? "Lunch Day " + WORD_INDEX[w.headword].day : "Manhattan list"}</span></span><span class="d">${esc(w.meaning_here)}</span></div>`).join("")}</div></section>
+      <section class="stack"><span class="label">Vocabulary in this essay</span><div class="vocab-list">${e.words.map(w => `<div class="vrow">${speakBtn(w.headword, true)}<span class="w">${esc(w.headword)} <span class="faint" style="font-weight:400;font-size:12.5px">${WORD_INDEX[w.headword] ? "Lunch Day " + WORD_INDEX[w.headword].day : "Manhattan list"}</span></span><span class="d">${esc(w.meaning_here)}</span></div>`).join("")}</div></section>
       <div class="wordnav">
         <button class="btn ghost small" id="er-prev"${prev ? "" : " disabled"}>${ICON.back} ${prev ? "#" + String(prev.pid).padStart(3, "0") : ""}</button>
         <button class="btn${isRead(id) ? " ghost" : ""} small" id="er-read">${isRead(id) ? "✓ Read" : "Mark as read"}</button>
@@ -1426,8 +1428,8 @@ const Essays = (() => {
     $("#er-body").onkeydown = ev => { if (ev.key === "Enter" || ev.key === " ") { const m = ev.target.closest("mark.t[data-w]"); if (m) { ev.preventDefault(); wordPop(m, e, true); } } };
   }
   function wordPop(m, e, viaKey) {
-    const head = m.dataset.w, w = e.words.find(x => x.headword === head) || {}, L = WORD_INDEX[head], p = PRON[head];
-    Pop.show(m, `<div class="row" style="justify-content:space-between"><span class="hw2">${esc(head)}</span>${L ? speakBtn(head, true) : ""}</div>
+    const head = m.dataset.w, w = e.words.find(x => x.headword === head) || {}, L = WORD_INDEX[head], p = PRON[head] || (w.ipa ? w : null);
+    Pop.show(m, `<div class="row" style="justify-content:space-between"><span class="hw2">${esc(head)}</span>${speakBtn(head, true)}</div>
       ${p ? `<span class="ipa">/${esc(p.ipa)}/ <span class="respell">${esc(p.respell)}</span></span>` : ""}
       <span><b>Here:</b> ${esc(w.meaning_here || "")}</span>
       ${L ? `<span class="muted">${esc(L.w.gist)}</span><button class="btn quiet small" style="justify-self:start;padding-left:0" data-open="${esc(head)}">Open in Lexicon · Day ${L.day}</button>` : `<span class="faint" style="font-size:12px">Manhattan list word (in your Anki deck)</span>`}`, viaKey);
