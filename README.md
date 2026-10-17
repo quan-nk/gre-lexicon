@@ -86,9 +86,3 @@ Your progress (words seen, test results, essays read, drill scores) is saved in 
   - Examples come from a short bank of fact-checked cases, so the facts stay right and the examples are reusable on test day.
 
 If you spot a mistake, please open an issue.
-
----
-
-## Thank you, Claude
-
-This project would not exist without Claude (Anthropic).
