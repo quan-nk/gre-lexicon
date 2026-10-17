@@ -1,6 +1,6 @@
 # GRE Lexicon
 
-**Live site:** https://quan-nk.github.io/gre-lexicon/
+**Live site:** https://gre.quannk.com
 
 A small, self-contained study app I built to prepare for GRE Verbal around a full-time job. It has three parts:
 
